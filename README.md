@@ -1,102 +1,81 @@
-# Expense Tracker
+# Simple Expense Tracker
 
-![expense-tracker](/public/photos/expense-tracker.gif)
+source: https://github.com/ivyhungtw/expense-tracker
 
-Expense Tracker is a simple RESTful web application built with Node.js, Express, and mongoDB for users to track daily expenses.
+## Install and Run
 
-This project is Live on: https://sleepy-cliffs-84117.herokuapp.com/
+### Prerequisites
+- Git
+- Node.js v14.15.1
+- Express
+- mongoDB
 
-You can use the default accounts below, register an account, or use your Facebook/Google account to login.
+### 安裝與執行指令
 
-```
-email: user1@example.com/user2@example.com
-password: 12345678
-```
+這邊要注意一下 npm 版本，有需要的話可以用 nvm 去做管理 （node 跟 npm 的版本要對應）
 
-## Features
+:bulb: `npm run seed` Is to have default users, categories, and records set up, run the following script
 
-- Sign up for an account by providing name, email, and password
-- Log in with email, Facebook, or Google account
-- Log out of an account
-
-After login, users can:
-
-- View all expenses/revenues
-- View total amount of expenses/revenues/balance
-- View expenses break down by category and month in chart visualizations
-- View monthly spent and remaining budget in pie chart
-- Filter expenses by category and month
-- Filter revenues by month
-- Add an expense and a revenue
-- Edit their expense, revenue, budget, avatar, and name
-- Delete an expense and a revenue
-
-![RWD](/public/photos/expense-tracker-RWD.gif)
-![Home page](/public/photos/index.png)
-![Login page](/public/photos/login-new.png)
-![Register page](/public/photos/register-new.png)
-![Expenses page](/public/photos/expenses.png)
-![Revenues page](/public/photos/revenues.png)
-
-## Prerequisites
-
-- [Git](https://git-scm.com/downloads)
-- [Node.js v14.15.1](https://nodejs.org/en/)
-- [Express](https://expressjs.com/)
-- [mongoDB](https://www.mongodb.com/)
-
-## Install Expense Tracker
-
-#### Clone the repository locally
-
-```
+```bash!
 $ git clone https://github.com/ivyhungtw/expense-tracker.git
-```
-
-#### Install project dependencies
-
-```
 $ cd expense-tracker
 $ npm install
-```
-
-#### Add .env file
-
-To properly use the app and Facebook login feature, make sure you have filled out the following information in .env file.
-
-You can get your own Facebook id and secret on [Facebook Developers](https://developers.facebook.com/).
-
-```
-FACEBOOK_ID=<Your Facebook app ID>
-FACEBOOK_SECRET=<Your Facebook app secret>
-FACEBOOK_CALLBACK=http://localhost:3000/auth/facebook/callback
-SESSION_SECRET=ThisIsMySecret
-MONGODB_URI=mongodb://localhost/todo-list
-PORT=3000
-```
-
-## Use Expense Tracker
-
-#### Import seed data
-
-To have default users, categories, and records set up, run the following script.
-
-```
-$ npm run seed
-```
-
-#### Start the app
-
-If you have installed [nodemon](https://www.npmjs.com/package/nodemon), run the following script.
-
-```
+$ npm run seed # for default setup
+$ npm install nodemon
 $ npm run dev
 ```
 
-or just run:
+### .env file setting
+
+這邊會把 facebook 跟 google 的連結都關掉，並且 todo-list 改成 expense-tracker（其實沒差 反正 mongoDB 都會開一個 database 給 app）
 
 ```
-$ node app.js
+FACEBOOK_ID=SKIP
+FACEBOOK_SECRET=SKIP
+FACEBOOK_CALLBACK=http://localhost:3000/auth/facebook/callback
+SESSION_SECRET=ThisIsMySecret
+MONGODB_URI=mongodb://localhost/expense-tracker
+PORT=3000
+GOOGLE_CLIENT_ID=SKIP
+GOOGLE_CLIENT_SECRET=SKIP
+GOOGLE_CALLBACK=http://localhost:3000/auth/google/callback
 ```
 
-The server will start running on http://localhost:3000/
+### app.js setting
+
+底下的部分會把原本的 localhost 改成 0.0.0.0
+要改 PORT 可以回去 .env 檔案修改
+
+```
+// Start and listen on the Express server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`App is running on http://0.0.0.0:${PORT}`)
+})
+```
+
+## Modification
+
+for NCU SEP term project
+
+### Remove Facebook and Google Connections
+
+因為 Facebook 與 Google 帳號的連動不太適合做為測試的一部份，因此我們需要將他們的按鈕移除，並且將 Facebook 與 Google 的連動都 skip 掉
+
+in `login.hbs` :
+![image](https://hackmd.io/_uploads/Byy-riS2Je.png)
+
+in `register.hbs` :
+![image](https://hackmd.io/_uploads/ryHxBor3ye.png)
+
+in `.env` we skip all account connections:
+```
+FACEBOOK_ID=SKIP
+FACEBOOK_SECRET=SKIP
+FACEBOOK_CALLBACK=http://localhost:3000/auth/facebook/callback
+SESSION_SECRET=ThisIsMySecret
+MONGODB_URI=mongodb://localhost/expense-tracker
+PORT=3000
+GOOGLE_CLIENT_ID=SKIP
+GOOGLE_CLIENT_SECRET=SKIP
+GOOGLE_CALLBACK=http://localhost:3000/auth/google/callback
+```
