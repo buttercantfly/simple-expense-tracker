@@ -4,6 +4,10 @@ const passport = require('passport')
 const User = require('../models/user')
 const Record = require('../models/record')
 
+// Add for dealing upload image to profile
+const fs = require('fs');
+const path = require('path'); 
+
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
@@ -127,47 +131,72 @@ const userController = {
     res.render('users/edit')
   },
   putUserProfile: async (req, res) => {
-    const { file } = req
-    let img
-    const acceptedType = ['.png', '.jpg', '.jpeg']
+    const { file } = req;
+    const acceptedType = ['.png', '.jpg', '.jpeg'];
 
     if (!req.body.name || req.body.name.length > 25) {
       return res.render('users/edit', {
         user: { name: req.body.name },
-        error_msg: 'Name can not be empty or longer than 25 characters.'
-      })
+        error_msg: 'Name cannot be empty or longer than 25 characters.'
+      });
     }
 
     try {
+      let img;
       if (file) {
         const fileType = file.originalname
           .substring(file.originalname.lastIndexOf('.'))
-          .toLowerCase()
+          .toLowerCase();
 
         if (acceptedType.indexOf(fileType) === -1) {
           req.flash(
             'error_msg',
-            'This type of image is not accepted, Please upload the image ends with png, jpg, or jpeg. '
-          )
-          return res.redirect('back')
+            'This type of image is not accepted. Please upload an image with a .png, .jpg, or .jpeg extension.'
+          );
+          return res.redirect('back');
         }
 
-        imgur.setClientID(IMGUR_CLIENT_ID)
-        img = await uploadImg(file.path)
+        // Ensure the uploads directory exists
+        const uploadsDir = path.join(__dirname, '../public/avatar/');
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+
+        // Move the file from temp to uploads directory
+        const tempPath = file.path;
+        const targetPath = path.join(uploadsDir, file.filename);
+
+        fs.rename(tempPath, targetPath, err => {
+          if (err) {
+            console.error('File rename error:', err);
+            req.flash('error_msg', 'File upload failed');
+            return res.redirect('back');
+          }
+        });
+
+        img = `/avatar/${file.filename}`;
       }
 
-      let user = await User.findOne({ _id: req.user._id }).exec()
+      let user = await User.findById(req.user._id).exec();
 
-      user = Object.assign(user, {
-        name: req.body.name,
-        avatar: file ? img.data.link : user.avatar
-      })
+      if (!user) {
+        req.flash('error_msg', 'User not found');
+        return res.redirect('back');
+      }
 
-      await user.save()
+      user.name = req.body.name;
+      if (img) {
+        user.avatar = img;
+      }
 
-      res.redirect('/users/profile')
+      await user.save();
+
+      req.flash('success_msg', 'Profile updated successfully');
+      res.redirect('/users/profile');
     } catch (err) {
-      console.log(err)
+      console.error('Server error:', err);
+      req.flash('error_msg', 'Server error');
+      res.redirect('/users/edit');
     }
   },
   putBudget: async (req, res) => {
