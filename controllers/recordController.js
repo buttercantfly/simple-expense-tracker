@@ -150,7 +150,7 @@ const recordController = {
         (_, index) => index + 1
       )
       const prev = pageNumber - 1 < 1 ? 1 : pageNumber - 1
-      const next = pageNumber + 1 > pages ? pages : page + 1
+      const next = pageNumber + 1 > pages ? pages : pageNumber + 1
 
       // Show warning messages to improver customer experience
       let beginner
