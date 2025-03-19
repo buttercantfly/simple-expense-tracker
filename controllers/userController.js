@@ -43,7 +43,7 @@ const userController = {
     req.session.password = ''
 
     // Check if all required fields are filled out
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       errors.push({
         message: 'Please fill out all required fields marked with *'
       })
